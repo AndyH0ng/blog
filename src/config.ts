@@ -25,7 +25,7 @@ export const SITE_FAVICON = "🍅";
 export const NAME = "Andy Hong";
 
 // will be used in the footer as the license of the content (e.g. "All right reserved" or "CC-BY-SA 4.0")
-export const LICENSE = "MIT licensed.";
+export const LICENSE = "모든 권리 보유.";
 
 // will be used to identify your bluesky account, so that likes and comments can be shown on your posts
 export const BLUESKY_IDENTIFIER = "flo-bit.dev";
