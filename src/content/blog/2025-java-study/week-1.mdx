@@ -1,0 +1,121 @@
+---
+title: "올라운더 Java 스터디 1주차"
+description: "백엔드 마스터가 되고 싶던 박호건씨는 인터넷 강의를 통해 실력을 키우고자 한다. 하지만 원하는 모든 강의를 들으려니 가격이 너무 비싸서 구입할 수가 없다. 박호건씨는 한정된 예산으로 담을 수 있는 경우의 수를 따지기 위해 장바구니 프로그램을 개발하려고 한다."
+pubDate: "2025.07.20"
+published: true
+tags: ["Java", "OOP", "Study"]
+---
+
+## 스터디의 목적
+
+가치 창출을 위해서는 유지보수하기 쉬운, 가독성이 좋은 코드를 작성해야 한다.
+가끔 내가 코드를 짜다보면 나 스스로도 먼 x소린지 모를 때가 있더라..
+
+상속, 다형성, 추상화 등 객체지향 프로그래밍의 개념을 실전 연습을 통해 익히면 프로젝트를 할 때에도 잘 활용할 수 있지 않을까 생각이 들어 Java 스터디를 시작했다.
+
+## 미션 톺아보기
+
+총 예산과 장바구니에 담을 강의 이름 목록을 입력하면 예산 초과 여부와 초과 금액을 출력한다.
+
+(응용) 총 예산과 별개로 강의 유형별 예산을 둔다.
+입력을 받을 때 각 유형별 예산도 입력받은 후 이에 대한 초과 여부 및 초과 금액을 출력한다.
+
+(심화) 각 유형별로 프로모션이 존재한다.
+프로모션의 조건에 맞을 경우 프로모션을 적용하여 가격을 계산한다.
+
+## 목표
+
+- Java 문법과 친해지자!
+- 추상화 및 의존성 분리 등을 통해 객체지향적으로 프로그램을 설계하자!
+- 유지보수성과 가독성을 고려하여 코드를 작성하자!
+
+## 구현 포인트: 이놈!
+
+```java
+public enum Lecture {
+    LEC1("1", "쿠버네티스 어나더 클래스", 0, 77_000),
+    LEC2("2", "이론과 실습으로 시력이 높아지는 대세는 쿠버네티스", 0, 44_000),
+    LEC3("3", "비전공지도 이해할 수 있는 AWS 입문/실전", 0, 66_000),
+    LEC4("4", "처음하는 MongoDB와 NoSQL", 1, 69_300),
+    LEC5("5", "비전공자도 이해할 수 있는 DB 설계 입문/실전", 1, 66_000),
+    LEC6("6", "데이터 분석을 위한 기초 SQL", 1, 16_500),
+    LEC7("7", "한 번에 끝내는 자바스크립트", 2, 35_200),
+    LEC8("8", "실전 자바 - 기본편", 2, 44_000),
+    LEC9("9", "코딩으로 학습하는 GoF의 디자인 패턴", 2, 88_000),
+    LEC10("10", "스프링 핵심 원리 - 기본편", 3, 88_000),
+    LEC11("11", "스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술", 3, 99_000),
+    LEC12("12", "Spring Boot를 활용하여 채팅 플랫폼 만들어보기", 3, 57_200),
+    LEC13("13", "실전! 스프링 부트와 JPA 활용", 3, 88_000),
+    LEC14("14", "실습으로 배우는 핵심 네트워크 기술", 4, 132_000),
+    LEC15("15", "모든 개발자를 위한 HTTP 웹 기본 지식", 4, 44_000),
+    LEC16("16", "그림으로 쉽게 배우는 운영체제", 4, 77_000),
+    LEC17("17", "외워서 끝내는 SSL과 최소한의 암호기술", 4, 44_000);
+
+    private final String id;
+    private final String name;
+    private final int category;
+    private final int price;
+}
+```
+
+강의 데이터는 상수 데이터란 점을 착안하여 `enum`을 이번 기회에 사용해보기로 했다.
+
+C언어 공부할 때 `enum`을 공부할 때 상수 변수를 열거할 때 사용한다 + 열거자 상수를 통해 콜할 수 있다는 점을 배웠기에 내심 반가웠다!
+
+`enum` 크기를 최소화하고 (getter 메소드 정도만 구현) 나머지 뚱뚱한 작업들은 클래스로 옮겼다.
+
+## 구현 포인트: 가변 배열
+
+```java
+class Basket {
+    Basket(int budget) {
+        this.budget = new int[6];
+        this.price = new int[6];
+        this.lectures = new Lecture[5][];
+        this.budget[0] = budget;
+        this.lectures[0] = new Lecture[3]; // DevOps
+        this.lectures[1] = new Lecture[3]; // DBMS
+        this.lectures[2] = new Lecture[3]; // Lang
+        this.lectures[3] = new Lecture[4]; // F/W
+        this.lectures[4] = new Lecture[4]; // CS
+    }
+...
+```
+
+카테고리별로 강의 수가 다르다는 점을 착안하여 가변 배열(Jagged Array)를 사용하기로 했다.
+
+객지프 수업 때 배운 내용을 직접 활용해보는 좋은 경험이었다 :)
+
+## 구현 포인트: try-catch
+
+```java
+public void categorize(String[] id) {
+        for (String s : id) {
+            try {
+                // 강의 ID로 Lecture enum을 찾습니다.
+                for (Lecture l : Lecture.values()) {
+                    if (l.getId().equals(s)) {
+                        int j = l.getCategory();
+                        // 강의를 추가합니다.
+                        for (int i = 0; i < lectures[j].length; i++) {
+                            if (lectures[j][i] == null) {
+                                lectures[j][i] = l;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("[오류] 잘못된 강의 ID: " + s);
+            }
+        }
+    }
+```
+
+잘못된 데이터가 들어갈 상황(Ex. 잘못된 카테고리, 잘못된 강의 ID)을 대비하여 `try-catch` 문을 사용하였다.
+
+## Reference
+
+https://wooded-brian-178.notion.site/1-21532417cb4280c9b403ff1adc2e0cc3
+
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Enum.html

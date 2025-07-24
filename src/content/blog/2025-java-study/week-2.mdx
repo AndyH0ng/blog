@@ -1,0 +1,60 @@
+---
+title: "올라운더 Java 스터디 2주차"
+description: "지난 5월, 중남미 카리브해의 한 섬에서 물고기 비가 내렸다. 김난슬씨는 이 뉴스를 보고 문득 자신의 앞마당에 있는 연못에 물고기 비가 내린다면 그 물고기가 얼마나 살 수 있을지 궁금해져 이를 시뮬레이션하는 프로그램을 개발하고자 한다."
+pubDate: "2025.07.22"
+published: true
+tags: ["Java", "OOP", "Study"]
+---
+
+## 미션 톺아보기
+
+연못에 있는 물고기의 생존기간을 계산하는 프로그램을 개발한다.
+
+연못은 물고기 비로 내린 물고기들로만 구성된다. 각 물고기는 먹이사슬에 따라 하루에 한 번만 먹이를 먹으며 먹이를 먹지 못한 개체는 죽는다.
+연못에 떨어질 물고기들 각각의 종류와 마리수를 입력하면 마지막까지 남는 물고기가 생존한 기간을 출력한다.
+
+## 구현 포인트: 맵
+
+```java
+public class Pond {
+    public int simulateSurvivalDays() {
+    int day = 0;
+
+      while (true) {
+          Map<Fish, Integer> nextPopulation = new HashMap<>(population);  // 다음 날 생존 물고기 수
+          boolean anyPredation = false;
+  ...
+          // 포식자가 먹음
+          for (Fish prey : preyList) {
+              int preyAvailable = availablePrey.getOrDefault(prey, 0);    // 현재 먹이 수
+              int eatCount = Math.min(remainingPredator, preyAvailable);      // 포식자가 먹을 수 있는 수
+              if (eatCount > 0) {
+                  nextPopulation.put(prey, nextPopulation.get(prey) - eatCount);
+                  survivor += eatCount;
+                  remainingPredator -= eatCount;
+                  anyPredation = true;
+              }
+              if (remainingPredator == 0) break;
+          }
+          // 남은 포식자 생존
+          nextPopulation.put(predator, survivor);
+      }
+...
+}
+```
+
+이번 미션에서는 물고기와 먹이의 관계를 표현하기 위해 해시 맵을 사용해보기로 했다.
+
+객지프 수업 때 교수님께서 레퍼런스는 공식 API 문서를 참고함을 권장하셨기에,
+Java API 문서를 적극 활용하였다.
+
+물고기 종류와 개체수를 저장하기 위해 `Map<Fish, Integer>`를 사용하고,
+포식자와 먹이의 관계를 저장하기 위해 `Map<Predator, List<Prey>>`를 사용하였다.
+
+해시 맵을 사용함으로써 물고기 종류를 키로, 개체수를 값으로 저장할 수 있어 물고기 종류별로 개체 수를 쉽게 관리할 수 있었다.
+
+## Reference
+
+https://wooded-brian-178.notion.site/2-21632417cb42801fa8c4dfa1176762b1
+
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html
