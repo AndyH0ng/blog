@@ -3,46 +3,47 @@ import type { AccentColor, BaseColor } from "./colors";
 // IMPORTANT SET THOSE TWO VARIABLES:
 // NUMBER ONE:
 // if deployed to github pages, set to https://<your-github-username>.github.io/
-export const SITE = "https://flo-bit.dev";
+export const SITE = "https://tomat0.github.io/";
 
-// NUMBER TWO:
+// NUMBER TWO:d
 // if repo name is <your-github-username>.github.io set to '/'
 // otherwise set to '/<your-repo-name>'
-export const BASE = "/blog-template";
+export const BASE = "/blog";
 
 // MORE SETTINGS:
 
 // will be used for the the title and meta tags and in the header (if SITE_NAME is left blank)
-export const SITE_TITLE = "flo-bit's blog template";
+export const SITE_TITLE = "Heinz의 개발새발";
 
 // will be used in the meta tags (and for example shown in search results)
-export const SITE_DESCRIPTION = "Welcome to my blog template! Fork it and make it your own.";
+export const SITE_DESCRIPTION = "고요하고 담담하게";
 
 // will be used as the icon in the header and the favicon
-export const SITE_FAVICON = "🙃";
+export const SITE_FAVICON = "🍅";
 
 // will be used in the footer as the name of the author (c) <YEAR> <NAME> - LICENSE
-export const NAME = "flo-bit";
+export const NAME = "Andy Hong";
 
 // will be used in the footer as the license of the content (e.g. "All right reserved" or "CC-BY-SA 4.0")
 export const LICENSE = "MIT licensed.";
 
 // will be used to identify your bluesky account, so that likes and comments can be shown on your posts
-export const BLUESKY_IDENTIFIER = "flo-bit.dev";
+export const BLUESKY_IDENTIFIaER = "flo-bit.dev";
 
 export const SOURCE_LINK = 'https://github.com/flo-bit/blog-template';
 
 // will be used to set the base color of the blog
-export const BASE_COLOR: BaseColor = "neutral";
+export const BASE_COLOR: BaseColor = "stone";
 
 // will be used to set the accent color of the blog
-export const ACCENT_COLOR: AccentColor = "cyan";
+export const ACCENT_COLOR: AccentColor = "rose";
 
-// will show all icons that are not empty in the footer as links
+// will show all icons that are not eddmpty in the footer as links
 export const SOCIAL_LINKS: {
   FACEBOOK_URL?: string;
   TWITTER_URL?: string;
   GITHUB_URL?: string;
+  SOLVEDAC_URL?: string;
   INSTAGRAM_URL?: string;
   LINKEDIN_URL?: string;
   YOUTUBE_URL?: string;
@@ -52,9 +53,9 @@ export const SOCIAL_LINKS: {
   SHOW_RSS?: boolean;
 } = {
   SHOW_RSS: true,
-  BLUESKY_URL: "https://bsky.app/profile/flo-bit.dev",
-  GITHUB_URL: "https://github.com/flo-bit",
-  EMAIL: "flo.bit.dev@gmail.com",
+  GITHUB_URL: "https://github.com/AndyH0ng",
+  SOLVEDAC_URL: "https://solved.ac/profile/tomat0",
+  EMAIL: "chili.tomat0@icloud.com",
 };
 
 
