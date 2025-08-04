@@ -1,0 +1,66 @@
+---
+title: "올라운더 Java 스터디 4주차"
+description: "흑백요리사를 보고 요리를 만들어 먹으려던 김연서씨는 냉장고에 있는 재료로 요리를 만들어 먹으려고 한다. 제한된 재로 속에서 만들 수 있는 요리를 고민하는 것에 지쳐 만들 수 있는 요리를 파악할 수 있는 프로그램을 개발하고자 한다."
+pubDate: "2025.08.04"
+published: true
+tags: ["Java", "OOP", "Refactoring", "Study"]
+---
+
+## 미션 톺아보기
+
+요리를 검색하는 프로그램을 개발한다. 재료 목록을 입력하면 만들 수 있는 요리를 출력한다. 요리 목록은 아래에 있는 요리를 기본으로 두며 재료 역시 마찬가지이다.
+
+레시피의 정보들은 세 개의 파일로 나누어 csv 형태로 `src/main/resources` 에 저장되어 있다.
+
+- Cuisine.csv
+  - chef_name(셰프 이름), cuisine_name(요리명), id(임의의 식별 id)
+- Ingredient.csv
+  - ingredient_name(재료명), id(임의의 식별 id), unit(용량 단위 - g / ml)
+- Recipe.csv
+  - cuisine_id(요리 id), ingredient_id(재료 id), weight(중량)
+
+## 구현 포인트: 역할과 책임을 분리하는 객체 설계
+
+단순한 스크립트가 아닌, 유지보수와 확장이 용이한 애플리케이션을 만들기 위해 객체지향 설계 원칙을 적용했습니다. 각 객체가 자신만의 역할과 책임을 명확히 갖도록 코드를 구성하는 데 집중했습니다.
+
+-   **관심사의 분리**: 사용자의 입력을 받고 결과를 출력하는 **View**, 프로그램의 흐름을 제어하는 **Controller**, 핵심 비즈니스 로직을 수행하는 **Service** 계층으로 역할을 명확히 나누었습니다. 예를 들어, `CuisineSuggester`(Controller)는 `SuggestCuisines`(Service) 객체에 의존하지만, 요리를 어떻게 추천하는지에 대한 구체적인 로직은 전혀 알지 못합니다. 그저 추천을 요청하고 결과를 받아 View에 전달할 뿐입니다. 이러한 설계는 각 컴포넌트의 독립성을 높여 코드를 이해하고 테스트하기 쉽게 만듭니다.
+
+-   **상속과 다형성을 활용한 CSV 처리**: 요리, 재료, 레시피 정보를 각각 다른 CSV 파일에서 읽어와야 했습니다. 이 공통된 'CSV 파일을 읽는다'는 행위를 추상화하여 `CsvReader`라는 추상 클래스를 만들었습니다.
+
+```java
+// mission.util.CsvReader.java (Conceptual)
+public abstract class CsvReader<T> {
+    public abstract T read() throws IOException;
+}
+```
+
+그리고 `CuisineCsvReader`, `IngredientCsvReader`, `RecipeCsvReader`가 이 `CsvReader`를 상속받아 각자의 CSV 포맷에 맞게 `read()` 메서드를 구체적으로 구현하도록 했습니다.
+
+```java
+// mission.util.CuisineCsvReader.java
+public class CuisineCsvReader extends CsvReader<Map<String, Integer>> {
+    @Override
+    public Map<String, Integer> read() throws IOException {
+        // Cuisine.csv 파일을 읽고 파싱하는 구체적인 로직
+    }
+}
+
+// mission.util.IngredientCsvReader.java
+public class IngredientCsvReader extends CsvReader<Map<String, Integer>> {
+    @Override
+    public Map<String, Integer> read() throws IOException {
+        // Ingredient.csv 파일을 읽고 파싱하는 구체적인 로직
+    }
+}
+```
+
+이러한 설계 덕분에, 나중에 "셰프 정보" 같은 새로운 데이터가 추가되더라도 `ChefCsvReader`라는 새로운 클래스를 만들기만 하면 기존 코드에 미치는 영향 없이 기능을 확장할 수 있습니다.
+
+## 배운 점
+
+이번 미션을 통해 단순히 코드를 작성하는 것을 넘어, 좋은 설계를 고민하는 것의 중요성을 깊이 깨달았습니다.
+
+1.  **객체는 역할과 책임을 가져야 한다**: 각 객체에 명확한 역할을 부여하고 다른 객체의 내부 구현에 의존하지 않도록 하는 것(캡슐화)이 왜 중요한지 체감했습니다. 역할 분리는 코드 변경의 파급 효과를 최소화하고, 재사용성을 극대화했습니다.
+2.  **추상화는 확장성의 열쇠다**: `CsvReader` 예시처럼, 공통된 특징을 찾아 추상화하고 이를 상속받아 구체화하여 코드의 유지보수성을 높였습니다.
+
+기능 구현에만 급급했던 과거에서 벗어나, "어떻게 하면 더 유연하고, 어떻게 하면 더 읽기 좋은 코드를 짤 수 있을까?"를 고민하는 계기가 되었던 것 같습니다~
