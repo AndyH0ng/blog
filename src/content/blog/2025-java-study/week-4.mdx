@@ -23,7 +23,7 @@ tags: ["Java", "OOP", "Refactoring", "Study"]
 
 단순한 스크립트가 아닌, 유지보수와 확장이 용이한 애플리케이션을 만들기 위해 객체지향 설계 원칙을 적용했습니다. 각 객체가 자신만의 역할과 책임을 명확히 갖도록 코드를 구성하는 데 집중했습니다.
 
--   **관심사의 분리**: 사용자의 입력을 받고 결과를 출력하는 **View**, 프로그램의 흐름을 제어하는 **Controller**, 핵심 비즈니스 로직을 수행하는 **Service** 계층으로 역할을 명확히 나누었습니다. 예를 들어, `CuisineSuggester`(Controller)는 `SuggestCuisines`(Service) 객체에 의존하지만, 요리를 어떻게 추천하는지에 대한 구체적인 로직은 전혀 알지 못합니다. 그저 추천을 요청하고 결과를 받아 View에 전달할 뿐입니다. 이러한 설계는 각 컴포넌트의 독립성을 높여 코드를 이해하고 테스트하기 쉽게 만듭니다.
+-   **관심사의 분리**: 사용자의 입력을 받고 결과를 출력하는 **View**, 프로그램의 흐름을 제어하는 **Controller**, 핵심 비즈니스 로직을 수행하는 **Service** 계층으로 역할을 나누었습니다. 예를 들어, `CuisineSuggester`(Controller)는 `SuggestCuisines`(Service) 객체에 의존하지만, 요리를 어떻게 추천하는지에 대한 구체적인 로직은 전혀 알지 못합니다. 그저 추천을 요청하고 결과를 받아 View에 전달하는 작업만 진행합니다. 이러한 설계는 각 컴포넌트의 독립성을 높여 코드를 이해하고 테스트하기 쉽게 만듭니다.
 
 -   **상속과 다형성을 활용한 CSV 처리**: 요리, 재료, 레시피 정보를 각각 다른 CSV 파일에서 읽어와야 했습니다. 이 공통된 'CSV 파일을 읽는다'는 행위를 추상화하여 `CsvReader`라는 추상 클래스를 만들었습니다.
 
@@ -34,7 +34,7 @@ public abstract class CsvReader<T> {
 }
 ```
 
-그리고 `CuisineCsvReader`, `IngredientCsvReader`, `RecipeCsvReader`가 이 `CsvReader`를 상속받아 각자의 CSV 포맷에 맞게 `read()` 메서드를 구체적으로 구현하도록 했습니다.
+그리고 `CuisineCsvReader`, `IngredientCsvReader`, `RecipeCsvReader`가 이 `CsvReader`를 상속받아 각자의 CSV 포맷에 맞게 `read()` 메서드를 구체적으로 추상 클래스로 구현했습니다.
 
 ```java
 // mission.util.CuisineCsvReader.java
