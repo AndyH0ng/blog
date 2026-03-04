@@ -1,0 +1,54 @@
+name: 버그 리포트
+description: 버그를 발견했을 때 사용해 주세요.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 버그 설명
+      description: 어떤 문제가 발생했는지 설명해 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      description: 버그를 재현하는 단계를 적어 주세요.
+      placeholder: |
+        1. '...' 페이지로 이동
+        2. '...' 버튼 클릭
+        3. 오류 발생
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 동작
+      description: 정상적으로 동작했다면 어떤 결과가 나와야 하나요?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 브라우저
+      options:
+        - Chrome
+        - Safari
+        - Firefox
+        - Edge
+        - 모바일 Safari
+        - 모바일 Chrome
+        - 기타
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 스크린샷
+      description: 관련 스크린샷이 있다면 첨부해 주세요.
+    validations:
+      required: false
