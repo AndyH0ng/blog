@@ -27,7 +27,7 @@
 <div class="not-prose mt-8">
   {#if comments.length > 0}
     <div class="text-sm text-base-950 dark:text-base-100 font-semibold">
-      {getCommentCount(comments)} comments, sorted by newest first
+      댓글 {getCommentCount(comments)}개, 최신순
     </div>
   {/if}
 

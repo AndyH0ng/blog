@@ -35,8 +35,8 @@ let comments = post ? await getComments(post.data.uri) : [];
       href={atUriToPostUri(post.data.uri)}
       class="text-sm text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 font-semibold transition-colors duration-100"
     >
-      {disableComments ? "Like" : disableLikes ? "Comment" : "Like or comment"}
-      on bluesky
+      {disableComments ? "좋아요" : disableLikes ? "댓글" : "좋아요 또는 댓글"}을
+      Bluesky에서 남기기
     </a>
   ) : null
 }

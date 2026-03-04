@@ -8,7 +8,7 @@
     $showSearch = true;
   }}
 >
-  <div class="sr-only">search</div>
+  <div class="sr-only">검색</div>
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

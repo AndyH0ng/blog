@@ -30,7 +30,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
 
-          <span class="sr-only">expand comment</span>
+          <span class="sr-only">댓글 펼치기</span>
         </button>
       {/if}
     </div>
@@ -60,7 +60,7 @@
     <div
       class="mx-auto w-0.5 h-full bg-base-200 dark:bg-base-800 group-hover:bg-base-300 dark:group-hover:bg-base-700"
     ></div>
-    <span class="sr-only">collapse comment</span>
+    <span class="sr-only">댓글 접기</span>
   </button>
 
   <div class="mt-2 pb-2">
@@ -89,7 +89,7 @@
               d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
             />
           </svg>
-          <span class="sr-only">Replies</span>
+          <span class="sr-only">답글</span>
           {numberToHumanReadable(comment.post.replyCount)}
         </a>
 
@@ -113,7 +113,7 @@
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
             />
           </svg>
-          <span class="sr-only">Likes</span>
+          <span class="sr-only">좋아요</span>
           {numberToHumanReadable(comment.post.likeCount)}
         </a>
       </div>
@@ -124,7 +124,7 @@
           target="_blank"
           rel="noopener noreferrer nofollow"
           class="text-sm text-base-500 dark:text-base-400 hover:dark:text-base-300 hover:text-base-600 font-medium"
-          >View more replies on bluesky</a
+          >Bluesky에서 더 많은 답글 보기</a
         >
       {/if}
     {:else}

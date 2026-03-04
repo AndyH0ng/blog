@@ -7,7 +7,7 @@
 
   export let showResults = true;
 
-  export let placeholder = "Search...";
+  export let placeholder = "검색...";
 
   export let results: { title: string; content: string; href: string }[] = [
     {
@@ -19,7 +19,7 @@
     { title: "Title", content: "Content", href: "/" },
   ];
 
-  export let noResults = "No results found";
+  export let noResults = "검색 결과가 없어요";
 
   let currentSelection = 0;
 
@@ -126,7 +126,7 @@
         on:click={() => ($showSearch = false)}
         class="fixed inset-0 bg-base-500/30 dark:bg-base-950/70 transition-opacity z-0 cursor-default backdrop-blur-sm"
       >
-        <div class="sr-only">hide search</div>
+        <div class="sr-only">검색 닫기</div>
       </button>
 
       <div
