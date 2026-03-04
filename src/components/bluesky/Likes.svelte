@@ -39,7 +39,7 @@
 {#if postUri}
   <div class="not-prose flex flex-col mt-8 gap-4">
     <div class="text-sm text-base-950 dark:text-base-100 font-semibold">
-      {postLikesCount} like{postLikesCount === 1 ? "" : "s"}
+      좋아요 {postLikesCount}개
     </div>
 
     <div class="isolate flex -space-x-2 overflow-hidden px-4 flex-wrap">
@@ -56,7 +56,7 @@
             title={user.actor.handle}
             loading="lazy"
             src={user.actor.avatar.replace("avatar", "avatar_thumbnail")}
-            alt={"liked by " + user.actor.displayName}
+            alt={user.actor.displayName + "님이 좋아해요"}
           />
         </a>
       {/each}

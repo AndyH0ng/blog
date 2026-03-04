@@ -25,7 +25,7 @@ const { active } = Astro.props;
   >
     <div class="flex lg:flex-1">
       <a href={BASE + "/"} class="p-1.5">
-        <span class="sr-only">go to home</span>
+        <span class="sr-only">홈으로 이동</span>
 
         <div class="text-3xl flex items-center gap-x-2">
           {SHOW_FAVICON_IN_HEADER ? SITE_FAVICON : null}
@@ -40,12 +40,12 @@ const { active } = Astro.props;
       <HeaderLink
         href={BASE + "/"}
         active={active === "blog"}
-        class="text-sm font-semibold leading-6">Blog</HeaderLink
+        class="text-sm font-semibold leading-6">블로그</HeaderLink
       >
       <HeaderLink
         href={BASE + "/about"}
         active={active === "about"}
-        class="text-sm font-semibold leading-6">About</HeaderLink
+        class="text-sm font-semibold leading-6">소개</HeaderLink
       >
 
       {MANUAL_DARK_MODE ? <ThemeToggle /> : null}

@@ -1,17 +1,40 @@
 ---
+import { getFormatter } from "./bluesky/relative-time/formatter";
+import { render } from "./bluesky/relative-time/render";
+
 interface Props {
 	date: Date;
 }
 
 const { date } = Astro.props;
+
+const SEVEN_DAYS_IN_SECONDS = 604800;
+const now = Date.now();
+const delta = Math.abs(Math.round((date.getTime() - now) / 1000));
+
+let displayText: string;
+
+if (delta <= SEVEN_DAYS_IN_SECONDS) {
+	const formatter = getFormatter("ko-KR");
+	render(
+		{
+			date,
+			formatter,
+			callback: ({ text }) => {
+				displayText = text;
+			},
+		},
+		now,
+	);
+} else {
+	displayText = date.toLocaleDateString("ko-KR", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
+}
 ---
 
 <time datetime={date.toISOString()}>
-	{
-		date.toLocaleDateString('en-us', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		})
-	}
+	{displayText}
 </time>

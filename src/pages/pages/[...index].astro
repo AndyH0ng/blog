@@ -29,7 +29,6 @@ const total = Math.ceil((await getBlogPosts()).length / POSTS_PER_PAGE);
   showFeatured={index === 1}
 >
   <h1>
-    All blog posts
-    {total > 0 ? ` - Page ${index}` : ""}
+    {total > 0 ? `${index}페이지` : ""}
   </h1>
 </PostList>
