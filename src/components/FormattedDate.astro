@@ -12,7 +12,7 @@ const SEVEN_DAYS_IN_SECONDS = 604800;
 const now = Date.now();
 const delta = Math.abs(Math.round((date.getTime() - now) / 1000));
 
-let displayText: string;
+let displayText = "";
 
 if (delta <= SEVEN_DAYS_IN_SECONDS) {
 	const formatter = getFormatter("ko-KR");

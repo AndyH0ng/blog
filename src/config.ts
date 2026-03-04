@@ -28,7 +28,7 @@ export const NAME = "Andy Hong";
 export const LICENSE = "MIT 라이선스.";
 
 // will be used to identify your bluesky account, so that likes and comments can be shown on your posts
-export const BLUESKY_IDENTIFIER = "";
+export const BLUESKY_IDENTIFIER = "flo-bit.dev";
 
 export const SOURCE_LINK = 'https://github.com/flo-bit/blog-template';
 
