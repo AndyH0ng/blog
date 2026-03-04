@@ -46,7 +46,7 @@
     <div class="text-xs ml-2 text-base-500">
       <RelativeTime
         date={new Date(comment.post.record.createdAt)}
-        locale="en"
+        locale="ko"
       />
     </div>
   </div>
