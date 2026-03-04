@@ -188,11 +188,11 @@ const today = new Date();
       {
         SOCIAL_LINKS.EMAIL ? (
           <a
-            target="_blank"
-            href={"mailto:" + SOCIAL_LINKS.EMAIL}
-            class="text-base-600 hover:text-base-800 dark:text-base-400 dark:hover:text-base-200"
+            id="email-link"
+            data-e={Buffer.from(SOCIAL_LINKS.EMAIL).toString("base64")}
+            class="text-base-600 hover:text-base-800 dark:text-base-400 dark:hover:text-base-200 cursor-pointer"
           >
-            <span class="sr-only">{SOCIAL_LINKS.EMAIL}</span>
+            <span class="sr-only">이메일</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -203,6 +203,15 @@ const today = new Date();
               <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
             </svg>
           </a>
+          <script>
+            {
+              const el = document.getElementById("email-link");
+              if (el) {
+                const e = atob(el.dataset.e!);
+                el.setAttribute("href", "mailto:" + e);
+              }
+            }
+          </script>
         ) : null
       }
       {
@@ -212,7 +221,7 @@ const today = new Date();
             href={BASE + "/rss.xml"}
             class="text-base-600 hover:text-base-800 dark:text-base-400 dark:hover:text-base-200"
           >
-            <span class="sr-only">RSS feed</span>
+            <span class="sr-only">RSS 피드</span>
 
             <svg
               class="w-6 h-6"
@@ -242,7 +251,7 @@ const today = new Date();
             target="_blank"
             class="text-accent-600 hover:text-accent-500 dark:text-accent-500 dark:hover:text-accent-400 font-medium"
           >
-            Source
+            소스
           </a>
         ) : null
       }
