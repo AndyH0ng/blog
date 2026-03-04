@@ -52,9 +52,9 @@ export const SOCIAL_LINKS: {
   SHOW_RSS?: boolean;
 } = {
   SHOW_RSS: true,
-  BLUESKY_URL: "https://bsky.app/profile/flo-bit.dev",
-  GITHUB_URL: "https://github.com/flo-bit",
-  EMAIL: "flo.bit.dev@gmail.com",
+  BLUESKY_URL: "",
+  GITHUB_URL: "https://github.com/AndyH0ng",
+  EMAIL: import.meta.env.EMAIL || "",
 };
 
 
