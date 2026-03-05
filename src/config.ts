@@ -77,3 +77,9 @@ export const SITE_NAME = "";
 
 // if true, will show the SITE_FAVICON in the header
 export const SHOW_FAVICON_IN_HEADER = true;
+
+// Giscus (GitHub Discussions) comments
+export const GISCUS_REPO = "AndyH0ng/blog";
+export const GISCUS_REPO_ID = "R_kgDOReOhog";
+export const GISCUS_CATEGORY = "General";
+export const GISCUS_CATEGORY_ID = "DIC_kwDOReOhos4C3tdL";

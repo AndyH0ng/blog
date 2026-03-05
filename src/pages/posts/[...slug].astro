@@ -7,7 +7,7 @@ import Footer from "$components/Footer.astro";
 import { Image } from "astro:assets";
 import FormattedDate from "$components/FormattedDate.astro";
 import { getBlogPosts } from "src/utils";
-import BlueskyLikes from "$components/bluesky/BlueskyLikes.astro";
+import GiscusComments from "$components/GiscusComments.svelte";
 import Tag from "$components/Tag.astro";
 import TableOfContents from "$components/TableOfContents.svelte";
 import { SHOW_IMAGES } from "../../config.ts";
@@ -63,10 +63,7 @@ if (replacedHero && !images[replacedHero])
         <h1 class="mt-4">{post.data.title}</h1>
         <Content />
 
-        <BlueskyLikes
-          disableLikes={post.data.disableLikes}
-          disableComments={post.data.disableComments}
-        />
+        <GiscusComments client:idle />
       </BlogPost>
     </main>
     <aside class="hidden xl:block fixed top-24 right-[calc((100vw-768px)/2-14rem)] w-48">
