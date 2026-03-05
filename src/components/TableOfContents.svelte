@@ -102,7 +102,7 @@
               "block transition-all duration-200 hover:text-accent-500",
               heading.depth === 3 ? "pl-6" : "pl-3",
               activeSlug === heading.slug
-                ? "font-semibold text-white"
+                ? "font-semibold text-base-900 dark:text-base-100"
                 : "text-base-500 dark:text-base-400"
             ]}
           >
