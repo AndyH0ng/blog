@@ -99,7 +99,7 @@
             data-slug={heading.slug}
             onclick={(e) => handleClick(e, heading.slug)}
             class={[
-              "block transition-all duration-200 hover:text-accent-500",
+              "block transition-all duration-200 hover:text-base-900 dark:hover:text-base-100",
               heading.depth === 3 ? "pl-6" : "pl-3",
               activeSlug === heading.slug
                 ? "font-semibold text-base-900 dark:text-base-100"

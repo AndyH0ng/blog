@@ -11,7 +11,7 @@ import CusdisComments from "$components/cusdis/CusdisComments.svelte";
 import Tag from "$components/Tag.astro";
 import TableOfContents from "$components/TableOfContents.svelte";
 import { SHOW_IMAGES } from "../../config.ts";
-import GoatCounterViews from "$components/GoatCounterViews.svelte";
+
 
 export async function getStaticPaths() {
   const posts = await getBlogPosts(true);
@@ -59,7 +59,6 @@ if (replacedHero && !images[replacedHero])
           <div class="flex gap-2 flex-wrap">
             {post.data.tags?.map((tag: string) => <Tag {tag} />)}
           </div>
-          <GoatCounterViews path={post.id} client:idle />
         </div>
 
         <h1 class="mt-4">{post.data.title}</h1>
