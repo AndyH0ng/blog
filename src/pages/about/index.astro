@@ -14,12 +14,98 @@ import cardBackImg from "../../assets/card_back.webp";
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
   <Header active="about" />
 
-  <main class="max-w-2xl lg:max-w-3xl mx-auto mt-8 px-4">
-    <BusinessCard client:load frontImage={cardFrontImg.src} backImage={cardBackImg.src} />
-    <BlogPost>
-      <Content />
-    </BlogPost>
+  <main class="w-full">
+    <!-- Hero Section -->
+    <section class="min-h-[85vh] flex flex-col items-center justify-center relative px-4 py-12 bg-base-100 dark:bg-base-950">
+      <div class="w-full max-w-2xl lg:max-w-3xl flex justify-center z-10">
+        <BusinessCard client:load frontImage={cardFrontImg.src} backImage={cardBackImg.src} />
+      </div>
+      
+      <!-- Scroll Indicator -->
+      <div id="scroll-indicator" class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-20 transition-opacity duration-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="max-w-2xl lg:max-w-3xl mx-auto px-4 pb-24 reveal-content">
+      <BlogPost>
+        <Content />
+      </BlogPost>
+    </section>
   </main>
 
   <Footer />
 </BaseLayout>
+
+<script>
+  // Intersection Observer to reveal content (both ways)
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      } else {
+        entry.target.classList.remove('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // Scroll event for the indicator
+  const handleScroll = () => {
+    const indicator = document.getElementById('scroll-indicator');
+    if (indicator) {
+      // 20px만 내려도 사라지게 설정
+      if (window.scrollY > 20) {
+        indicator.style.opacity = '0';
+        indicator.style.pointerEvents = 'none';
+      } else {
+        indicator.style.opacity = '0.2';
+        indicator.style.pointerEvents = 'auto';
+      }
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const revealTargets = document.querySelectorAll('.reveal-content');
+    revealTargets.forEach(target => revealObserver.observe(target));
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // 초기 상태 체크
+    handleScroll();
+  });
+</script>
+
+<style>
+  .reveal-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+  }
+
+  .reveal-content.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  // Intersection Observer to reveal content on scroll
+  const observerOptions = {
+    threshold: 0.1
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, observerOptions);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const target = document.querySelector('.reveal-content');
+    if (target) observer.observe(target);
+  });
+</script>
