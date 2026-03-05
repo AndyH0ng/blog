@@ -8,10 +8,10 @@
 
   onMount(async () => {
     try {
-      const base = `https://${GOATCOUNTER_SITE}.goatcounter.com/counter/`;
+      const base = `https://${GOATCOUNTER_SITE}.goatcounter.com/counter`;
       const endpoint = path
         ? `${base}/posts/${path}/.json`
-        : `${base}TOTAL.json`;
+        : `${base}/TOTAL.json`;
       const res = await fetch(endpoint);
       const data = await res.json();
       count = data.count;
