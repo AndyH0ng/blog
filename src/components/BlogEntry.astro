@@ -3,6 +3,7 @@ import { BASE, SHOW_IMAGES } from "../config.ts";
 import FormattedDate from "./FormattedDate.astro";
 import Tag from "./Tag.astro";
 import HeroImage from "./HeroImage.astro";
+import GoatCounterViews from "./GoatCounterViews.svelte";
 
 const { title, description, pubDate, slug, heroImage, tags, noImage } =
   Astro.props;
@@ -24,6 +25,7 @@ const { title, description, pubDate, slug, heroImage, tags, noImage } =
       <div class="flex gap-2 flex-wrap">
         {tags?.map((tag: string) => <Tag {tag} />)}
       </div>
+      <GoatCounterViews path={slug} client:idle />
     </div>
     <div class="max-w-xl">
       <div

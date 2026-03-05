@@ -81,3 +81,6 @@ export const SHOW_FAVICON_IN_HEADER = true;
 // Cusdis 댓글
 export const CUSDIS_SERVER_URL = "https://cusdis.com";
 export const CUSDIS_APP_ID = "b1af68bd-7ebd-45e5-b836-a612a3bec5c6";
+
+// GoatCounter
+export const GOATCOUNTER_SITE = "tomat0";

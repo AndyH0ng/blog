@@ -34,12 +34,12 @@
 
 <div class="not-prose mt-8">
   {#if !loading && commentCount > 0}
-    <div class="text-sm text-base-950 dark:text-base-100 font-semibold">
+    <div class="text-lg text-base-950 dark:text-base-100 font-semibold">
       댓글 {commentCount}개
     </div>
   {/if}
 
-  <div class="mt-4">
+  <div class="mt-5">
     <CusdisReplyForm
       appId={CUSDIS_APP_ID}
       pageId={pageId}
@@ -49,9 +49,9 @@
   </div>
 
   {#if loading}
-    <div class="pt-4 text-sm text-base-500">댓글을 불러오는 중...</div>
+    <div class="pt-5 text-base text-base-500">댓글을 불러오는 중...</div>
   {:else if comments.length > 0}
-    <div class="pt-4">
+    <div class="pt-2 divide-y divide-base-100 dark:divide-base-800/50">
       {#each comments as comment}
         <CusdisCommentComponent
           {comment}

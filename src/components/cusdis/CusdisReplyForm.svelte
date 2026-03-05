@@ -53,37 +53,37 @@
 </script>
 
 <form onsubmit={handleSubmit} class="flex flex-col gap-3">
-  <div class="flex gap-3">
+  <div class="flex flex-col sm:flex-row gap-3">
     <input
       bind:value={nickname}
       placeholder="닉네임 *"
       required
-      class="flex-1 rounded-lg border border-base-200 dark:border-base-800 bg-base-50 dark:bg-base-950 px-3 py-2 text-sm text-base-900 dark:text-base-100 placeholder:text-base-400 dark:placeholder:text-base-600 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
+      class="flex-1 rounded-xl border border-base-200 dark:border-base-800 bg-base-50 dark:bg-base-950 px-4 py-2.5 text-base text-base-900 dark:text-base-100 placeholder:text-base-400 dark:placeholder:text-base-600 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
     />
     <input
       bind:value={email}
       type="email"
       placeholder="이메일 (선택)"
-      class="flex-1 rounded-lg border border-base-200 dark:border-base-800 bg-base-50 dark:bg-base-950 px-3 py-2 text-sm text-base-900 dark:text-base-100 placeholder:text-base-400 dark:placeholder:text-base-600 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
+      class="flex-1 rounded-xl border border-base-200 dark:border-base-800 bg-base-50 dark:bg-base-950 px-4 py-2.5 text-base text-base-900 dark:text-base-100 placeholder:text-base-400 dark:placeholder:text-base-600 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
     />
   </div>
   <textarea
     bind:value={content}
     placeholder="댓글을 작성하세요..."
     required
-    rows="3"
-    class="w-full rounded-lg border border-base-200 dark:border-base-800 bg-base-50 dark:bg-base-950 px-3 py-2 text-sm text-base-900 dark:text-base-100 placeholder:text-base-400 dark:placeholder:text-base-600 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 resize-none"
+    rows="4"
+    class="w-full rounded-xl border border-base-200 dark:border-base-800 bg-base-50 dark:bg-base-950 px-4 py-3 text-base text-base-900 dark:text-base-100 placeholder:text-base-400 dark:placeholder:text-base-600 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 resize-none"
   ></textarea>
   <div class="flex items-center justify-between">
     {#if message}
-      <span class="text-xs text-base-500">{message}</span>
+      <span class="text-sm text-base-500">{message}</span>
     {:else}
       <span></span>
     {/if}
     <button
       type="submit"
       disabled={submitting || !nickname.trim() || !content.trim()}
-      class="px-4 py-1.5 rounded-lg bg-accent-600 text-white text-sm font-medium hover:bg-accent-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      class="px-5 py-2 rounded-xl bg-accent-600 text-white text-base font-medium hover:bg-accent-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {submitting ? "등록 중..." : "댓글 작성"}
     </button>
