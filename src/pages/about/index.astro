@@ -6,12 +6,16 @@ import Header from "$components/Header.astro";
 import BaseLayout from "$layouts/BaseLayout.astro";
 import BlogPost from "$layouts/BlogPost.astro";
 import { Content } from "$content/info/about.mdx";
+import BusinessCard from "$components/BusinessCard.svelte";
+import cardFrontImg from "../../assets/card_front.webp";
+import cardBackImg from "../../assets/card_back.webp";
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
   <Header active="about" />
 
   <main class="max-w-2xl lg:max-w-3xl mx-auto mt-8 px-4">
+    <BusinessCard client:load frontImage={cardFrontImg.src} backImage={cardBackImg.src} />
     <BlogPost>
       <Content />
     </BlogPost>
