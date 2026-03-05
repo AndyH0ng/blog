@@ -9,6 +9,7 @@ import FormattedDate from "$components/FormattedDate.astro";
 import { getBlogPosts } from "src/utils";
 import BlueskyLikes from "$components/bluesky/BlueskyLikes.astro";
 import Tag from "$components/Tag.astro";
+import TableOfContents from "$components/TableOfContents.svelte";
 import { SHOW_IMAGES } from "../../config.ts";
 
 export async function getStaticPaths() {
@@ -21,7 +22,7 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 const images = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/**/*.{jpeg,jpg,png,gif}"
@@ -36,36 +37,41 @@ if (replacedHero && !images[replacedHero])
 <BaseLayout {...post.data} image={post.id + ".png"}>
   <Header active="blog" />
 
-  <main class="max-w-2xl lg:max-w-3xl mx-auto my-0 h-full p-4">
-    {
-      replacedHero && post.data.hideHero !== true && SHOW_IMAGES ? (
-        <Image
-          src={images[replacedHero]()}
-          alt=""
-          class="w-full h-80 object-cover rounded-xl shadow border border-base-400 dark:border-base-700"
+  <div class="relative">
+    <main class="max-w-2xl lg:max-w-3xl mx-auto my-0 h-full p-4">
+      {
+        replacedHero && post.data.hideHero !== true && SHOW_IMAGES ? (
+          <Image
+            src={images[replacedHero]()}
+            alt=""
+            class="w-full h-80 object-cover rounded-xl shadow border border-base-400 dark:border-base-700"
+          />
+        ) : null
+      }
+      <BlogPost>
+        <div
+          class="flex mt-8 gap-4 text-xs flex-col md:flex-row items-start md:items-center"
+        >
+          <div class="shrink-0">
+            <FormattedDate date={post.data.pubDate} />
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            {post.data.tags?.map((tag: string) => <Tag {tag} />)}
+          </div>
+        </div>
+
+        <h1 class="mt-4">{post.data.title}</h1>
+        <Content />
+
+        <BlueskyLikes
+          disableLikes={post.data.disableLikes}
+          disableComments={post.data.disableComments}
         />
-      ) : null
-    }
-    <BlogPost>
-      <div
-        class="flex mt-8 gap-4 text-xs flex-col md:flex-row items-start md:items-center"
-      >
-        <div class="shrink-0">
-          <FormattedDate date={post.data.pubDate} />
-        </div>
-        <div class="flex gap-2 flex-wrap">
-          {post.data.tags?.map((tag: string) => <Tag {tag} />)}
-        </div>
-      </div>
-
-      <h1 class="mt-4">{post.data.title}</h1>
-      <Content />
-
-      <BlueskyLikes
-        disableLikes={post.data.disableLikes}
-        disableComments={post.data.disableComments}
-      />
-    </BlogPost>
-  </main>
+      </BlogPost>
+    </main>
+    <aside class="hidden xl:block fixed top-24 right-[calc((100vw-768px)/2-14rem)] w-48">
+      <TableOfContents headings={headings} client:idle />
+    </aside>
+  </div>
   <Footer />
 </BaseLayout>
