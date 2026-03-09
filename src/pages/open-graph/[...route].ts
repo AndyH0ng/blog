@@ -74,17 +74,20 @@ export const { getStaticPaths, GET } = OGImageRoute({
     font: {
       /** Font style for the page title. */
       title: {
-        families: ["Inter"],
+        families: ["Pretendard Variable", "Inter"],
         color: hexToRgb(accentColor[500]),
         size: 80,
         weight: "SemiBold",
       },
       description: {
-        families: ["Inter"],
+        families: ["Pretendard Variable", "Inter"],
         color: hexToRgb(baseColor[100]),
       },
     },
     padding: 80,
-    fonts: ["./src/assets/fonts/InterVariable.ttf"],
+    fonts: [
+      "./src/assets/fonts/InterVariable.ttf",
+      "./src/assets/fonts/PretendardVariable.ttf",
+    ],
   }),
 });
