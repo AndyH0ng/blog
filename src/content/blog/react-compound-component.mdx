@@ -1,0 +1,357 @@
+---
+title: "Compound Component: 책임 분리하기"
+description: "SRP와 Presentational/Container 패턴을 활용한 컴포넌트 구조화 방법과, Hook으로 Container의 역할을 대체하는 방법, 그리고 Compound Component 패턴으로 복잡한 구조를 우아하게 만드는 방법에 대해 알아봅시다."
+pubDate: "2026-03-07"
+published: true
+tags: ["React"]
+---
+
+## SRP: 왜 나누지?
+
+잠시 Java의 객체지향 이야기를 해보자.
+
+Clean Architecture에서는 객체지향 설계의 5가지 원칙 SOLID를 명시하고 있다.
+
+5개 원칙의 초성을 따서 SOLID인데, 그 중 S를 담당하는 SRP(Single Responsibility Principle, 단일 책임 원칙)에 대해서 알아보자.
+
+> "A module should be responsible to one, and only one, actor.”
+>
+
+여기서 actor는 코드 변경을 요청하는 부서이다.
+
+책의 예시를 빌리면, 급여 시스템 `Employee` 클래스에서 CFO, COO, CTO는 각각 `calculatePay()`, `reportHours()`, `save()` 메서드의 명세를 가진다.
+
+actor가 세 명이 되는 것이다.
+
+```java
+// Clean Architecture 예시를 재구성한 코드입니다.
+class Employee {
+
+  // CFO: 급여 계산
+  double calculatePay() {
+    double regularHours = getRegularHours();
+    return regularHours * hourlyRate;
+  }
+
+  // COO: 업무 시간
+  double reportHours() {
+    double regularHours = getRegularHours(); // CFO랑 같은 로직 공유
+    return regularHours;
+  }
+
+  // CTO: DB 저장
+  void save() {
+    database.save(this);
+  }
+
+  // calculatePay와 reportHours가 공유
+  private double getRegularHours() {
+    return totalHours - overtimeHours;
+  }
+}
+```
+
+이때 CFO의 명세 변경으로 `calculatePay()`를 수정하면 `reportHours()`가 내부적으로 같은 로직을 공유하고 있기에 COO의 기능 `reportHours()` 또한 의도치 않게 영향을 받게 된다.
+
+```tsx
+// 각 actor별로 클래스 분리
+class PayCalculator {
+  double calculatePay(Employee e) { ... } // CFO actor
+}
+
+class HourReporter {
+  double reportHours(Employee e) { ... }  // COO actor
+}
+
+class EmployeeRepository {
+  void save(Employee e) { ... }           // CTO actor
+}
+
+// Employee는 데이터만 들고 있음
+class Employee {
+  double totalHours;
+  double overtimeHours;
+  double hourlyRate;
+}
+```
+
+## Presentational vs Container: 어떻게 나누지?
+
+이러한 SRP의 원칙을 수용하여, 프론트엔드의 책임인 화면 구현과 데이터의 처리를 분리하고자 Presentational Pattern, Container Pattern이 도입된다.
+
+즉, actor가 둘이면, 컴포넌트도 둘로 나눈다.
+
+서로의 책임에 대한 정보만을 소유, 처리하고, 상대에 대한 정보는 알지 못한다는 소리다.
+
+### Presentational
+
+- UI 구현에 대한 view 컴포넌트
+- 데이터가 어떻게 처리되는지 모른다.
+
+### Container
+
+- 데이터 그 자체와 데이터에 따른 로직에 대한 model, controller 컴포넌트
+- UI가 어떻게 생겼는지 모른다.
+
+아래의 예시를 보며 이해해보자.
+
+```tsx
+// AS-IS
+function UserCard({ userId }: { userId: string }) {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(setUser);
+  }, [userId]);
+
+  if (!user) return <div>로딩 중...</div>
+
+  return (
+    <div className="card">
+      <img src={user.avatar} alt={user.name} />
+      <h2>{user.name}</h2>
+      <span>{user.style}</span>
+    </div>
+  );
+}
+```
+
+위 코드에서 단일 컴포넌트에는 세 명의 actor가 있다.
+
+- endpoint가 바뀌면 fetch 업데이트
+- 카드 디자인 스타일
+- 로딩 처리 방식이 바뀌면 상태 업데이트
+
+```tsx
+// TO-BE: Presentational
+type UserCardProps = {
+  avatar: string;
+  name: string;
+  role: string;
+};
+
+function UserCard({ avatar, name, role }: UserCardProps) {
+  return (
+    <div className="card">
+      <img src={avatar} alt={name} />
+      <h2>{name}</h2>
+      <span>{role}</span>
+    </div>
+  );
+}
+```
+
+```tsx
+// TO-BE: Container
+function UserCardContainer({ userId }: { userId: string }) {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+    .then(res => res.json())
+    .then(setUser);
+  }, [userId]);
+
+  if (!user) return <div>로딩 중...</div>
+
+  return (
+    <UserCard
+      avatar={user.avatar}
+      name={user.name}
+      role={user.role}
+    />
+  );
+}
+```
+
+### Hook: Container의 대체제
+
+다만, 지금도 이 패턴을 써야 할까?
+
+> "I no longer suggest splitting your components this way."
+>
+
+이 디자인 패턴을 고안한 Dan Abramov가 업데이트한 내용이다.
+
+Container의 역할을 대체할 수 있는 Custom Hook이 등장했기 때문이다.
+
+Hook은 기존 컴포넌트와 달리 어떤 컴포넌트에도, 혹은 다른 로직에도 조합이 유연하게 가능하기에 Container에 비해 도입에 이점이 있다.
+
+```tsx
+// AS-IS
+function UserCardContainer({ userId }) {
+  const [user, setUser] = useState(null);
+  useEffect(() => { fetch(...) }, [userId]);
+
+  return <UserCard {...user} />;
+}
+```
+
+```tsx
+// TO-BE
+function useUser(userId: string) {
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(setUser);
+  }, [userId]);
+  return user;
+}
+```
+
+```tsx
+// AS-IS
+<UserContainer userId={userId}>
+  {(user) => (
+    <PostsContainer userId={userId}>
+      {(posts) => (
+        <OnlineStatusContainer userId={userId}>
+          {(isOnline) => (
+            <Dashboard user={user} posts={posts} isOnline={isOnline} />
+          )}
+        </OnlineStatusContainer>
+      )}
+    </PostsContainer>
+  )}
+</UserContainer>
+```
+
+```tsx
+// TO-BE
+function UserDashboard({ userId }) {
+  const user = useUser(userId);
+  const posts = useUserPosts(userId);
+  const isOnline = useOnlineStatus(userId);
+
+  return (
+    <Dashboard
+      user={user}
+      posts={posts}
+      isOnline={isOnline}
+    />
+  );
+}
+```
+
+### 그럼 무의미한 레거시 아닌가?
+
+도입 배경에 주목할 필요가 있다.
+
+UI 컴포넌트는 데이터와 관련된 출처를 몰라야 한다는 원칙은 여전히 유효하기 때문이다.
+
+Hook이 Container의 역할을 대체했을 뿐, Presentational 컴포넌트의 가치는 변하지 않았다.
+
+## Compound Component: 복합한 구조를 우아하게
+
+부모 컴포넌트가 Context로 상태를 들고, 서브 컴포넌트들이 그걸 직접 소비하는 패턴이다.
+
+```tsx
+<TodoList>
+  <TodoList.Header title="내 할 일" />
+  <TodoList.AddForm />
+  <TodoList.Items />
+</TodoList>
+```
+
+`TodoList.Header`나 `TodoList.Items`는 props를 따로 받지 않아도, 내부적으로 Context에서 상태를 꺼내 쓴다.
+
+### 왜 필요한가?
+
+```tsx
+// 중간 컴포넌트가 쓰지도 않는 props를 계속 내려줘야 함
+<TodoView
+  todos={todos}
+  input={input}
+  onInputChange={setInput}
+  onAdd={addTodo}
+  onToggle={toggleTodo}
+  onDelete={deleteTodo}
+/>
+```
+
+Custom Hook으로 로직은 분리했지만, 구조 자체는 고정돼 있다.
+
+따라서 Header를 아래로 옮기거나, AddForm을 없애려면 컴포넌트 내부를 수정해야 한다.
+
+Compound Component는 이걸 해결한다.
+
+```tsx
+// 구조를 사용처에서 자유롭게 조합
+<TodoList>
+  <TodoList.Items />
+</TodoList>
+
+<TodoList>
+  <TodoList.Header title="오늘 할 일" />
+  <TodoList.AddForm />
+  <TodoList.Items />
+</TodoList>
+```
+
+내부 수정 없이 **사용하는 쪽에서 구조를 제어**할 수 있다.
+
+> HTML의 `<select>` + `<option>`, `<table>` + `<tr>` + `<td>`가 대표적인 예시다.
+
+### 구현 방법
+
+**1. Context로 상태 공유**
+
+```tsx
+const TodoContext = createContext<TodoContextValue | null>(null);
+
+function useTodoContext() {
+  const ctx = useContext(TodoContext);
+  if (!ctx) throw new Error("TodoList 컴포넌트 안에서만 사용할 수 있습니다.");
+  return ctx;
+}
+```
+
+**2. 부모가 Context Provider**
+
+```tsx
+function TodoList({ initialTodos = [], children }: TodoListProps) {
+  const [todos, setTodos] = useState<Todo[]>(initialTodos);
+
+  return (
+    <TodoContext.Provider value={{ todos, input, setInput, addTodo, toggleTodo, deleteTodo }}>
+      <div>{children}</div>
+    </TodoContext.Provider>
+  );
+}
+```
+
+**3. 서브 컴포넌트가 Context를 직접 소비**
+
+```tsx
+// props 없이 Context에서 직접 꺼냄
+TodoList.Header = function Header({ title }: { title: string }) {
+  const { todos } = useTodoContext();
+  const done = todos.filter((t) => t.completed).length;
+
+  return (
+    <div className="flex items-center justify-between">
+      <h2>{title}</h2>
+      <span>{done} / {todos.length} 완료</span>
+    </div>
+  );
+};
+
+TodoList.Items = function Items() {
+  const { todos, toggleTodo, deleteTodo } = useTodoContext();
+
+  if (todos.length === 0) return <TodoList.Empty />;
+
+  return (
+    <ul>
+      {todos.map((todo) => (
+        <TodoList.Item key={todo.id} todo={todo} onToggle={toggleTodo} onDelete={deleteTodo} />
+      ))}
+    </ul>
+  );
+};
+```
+
+props-drilling이 사라진 것을 확인할 수 있다.
