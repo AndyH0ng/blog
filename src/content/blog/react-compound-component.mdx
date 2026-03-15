@@ -8,11 +8,9 @@ tags: ["React"]
 
 ## SRP: 왜 나누지?
 
-잠시 Java의 객체지향 이야기를 해보자.
-
 Clean Architecture에서는 객체지향 설계의 5가지 원칙 SOLID를 명시하고 있다.
 
-5개 원칙의 초성을 따서 SOLID인데, 그 중 S를 담당하는 SRP(Single Responsibility Principle, 단일 책임 원칙)에 대해서 알아보자.
+그 중 S를 담당하는 SRP(Single Responsibility Principle, 단일 책임 원칙)다.
 
 > "A module should be responsible to one, and only one, actor.”
 >
@@ -51,7 +49,9 @@ class Employee {
 }
 ```
 
-이때 CFO의 명세 변경으로 `calculatePay()`를 수정하면 `reportHours()`가 내부적으로 같은 로직을 공유하고 있기에 COO의 기능 `reportHours()` 또한 의도치 않게 영향을 받게 된다.
+CFO가 `calculatePay()`를 수정하면 `reportHours()`도 영향을 받는다.
+
+두 메서드가 `getRegularHours()`를 공유하기 때문이다.
 
 ```tsx
 // 각 actor별로 클래스 분리
@@ -77,11 +77,11 @@ class Employee {
 
 ## Presentational vs Container: 어떻게 나누지?
 
-이러한 SRP의 원칙을 수용하여, 프론트엔드의 책임인 화면 구현과 데이터의 처리를 분리하고자 Presentational Pattern, Container Pattern이 도입된다.
+SRP를 프론트엔드에 적용하면 화면 구현과 데이터 처리를 분리할 수 있다.
 
-즉, actor가 둘이면, 컴포넌트도 둘로 나눈다.
+이것이 Presentational/Container 패턴이다. actor가 둘이면 컴포넌트도 둘로 나눈다.
 
-서로의 책임에 대한 정보만을 소유, 처리하고, 상대에 대한 정보는 알지 못한다는 소리다.
+각 컴포넌트는 자신의 책임에 관한 정보만 처리하고, 상대방의 내부를 알지 못한다.
 
 ### Presentational
 
@@ -92,8 +92,6 @@ class Employee {
 
 - 데이터 그 자체와 데이터에 따른 로직에 대한 model, controller 컴포넌트
 - UI가 어떻게 생겼는지 모른다.
-
-아래의 예시를 보며 이해해보자.
 
 ```tsx
 // AS-IS
@@ -168,16 +166,16 @@ function UserCardContainer({ userId }: { userId: string }) {
 
 ### Hook: Container의 대체제
 
-다만, 지금도 이 패턴을 써야 할까?
+다만, 지금 이 패턴을 그대로 쓸 필요는 없다.
 
 > "I no longer suggest splitting your components this way."
 >
 
 이 디자인 패턴을 고안한 Dan Abramov가 업데이트한 내용이다.
 
-Container의 역할을 대체할 수 있는 Custom Hook이 등장했기 때문이다.
+Container의 역할을 대체할 수 있는 커스텀 훅이 등장했기 때문이다.
 
-Hook은 기존 컴포넌트와 달리 어떤 컴포넌트에도, 혹은 다른 로직에도 조합이 유연하게 가능하기에 Container에 비해 도입에 이점이 있다.
+커스텀 훅은 어떤 컴포넌트에서도, 다른 훅에서도 자유롭게 조합할 수 있다. Container 컴포넌트보다 재사용 범위가 넓다.
 
 ```tsx
 // AS-IS
@@ -238,9 +236,7 @@ function UserDashboard({ userId }) {
 
 ### 그럼 무의미한 레거시 아닌가?
 
-도입 배경에 주목할 필요가 있다.
-
-UI 컴포넌트는 데이터와 관련된 출처를 몰라야 한다는 원칙은 여전히 유효하기 때문이다.
+UI 컴포넌트가 데이터 출처를 몰라야 한다는 원칙은 여전히 유효하다.
 
 Hook이 Container의 역할을 대체했을 뿐, Presentational 컴포넌트의 가치는 변하지 않았다.
 
@@ -354,4 +350,4 @@ TodoList.Items = function Items() {
 };
 ```
 
-props-drilling이 사라진 것을 확인할 수 있다.
+props drilling이 사라진다.

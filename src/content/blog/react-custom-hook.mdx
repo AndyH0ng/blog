@@ -1,0 +1,403 @@
+---
+title: "Custom Hook: 로직을 분리하고, 조합하다"
+description: "커스텀 훅으로 로직과 UI를 나누는 방법, useReducer + Context 조합 패턴, 그리고 훅을 합성해 복잡한 상태를 우아하게 다루는 전략을 알아봅니다."
+pubDate: "2026-03-15"
+published: true
+tags: ["React"]
+---
+
+커스텀 훅은 Container 컴포넌트를 대체하는 데서 그치지 않는다.
+
+로직을 분리하고, 조합하고, 계층을 만드는 설계 단위로 활용할 수 있다.
+
+## 커스텀 훅: 로직을 컴포넌트 밖으로
+
+### 왜 꺼내야 하는가
+
+Presentational/Container 패턴의 핵심은 UI 컴포넌트가 데이터 출처를 모르게 만드는 것이다.
+
+커스텀 훅도 같은 원칙을 따른다.
+컴포넌트 안에 로직이 섞여 있으면, UI 변경과 비즈니스 로직 변경이 같은 파일에서 일어난다.
+
+다음 코드에서는 actor가 둘이다.
+
+```tsx
+// AS-IS: 로직과 UI가 한 컴포넌트 안에
+function SignupForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (!email.includes("@")) next.email = "올바른 이메일 형식이 아닙니다.";
+    if (password.length < 8) next.password = "비밀번호는 8자 이상이어야 합니다.";
+    return next;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length > 0) return setErrors(errs);
+    // 제출 로직...
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      {errors.email && <p>{errors.email}</p>}
+      <input value={password} onChange={(e) => setPassword(e.target.value)} />
+      {errors.password && <p>{errors.password}</p>}
+      <button type="submit">가입하기</button>
+    </form>
+  );
+}
+```
+
+유효성 검사 규칙이 바뀌면 UI 파일을 열어야 한다. 같은 폼 로직을 다른 컴포넌트에서 쓰고 싶으면 복사-붙여넣기를 해야한다.
+
+이때 커스텀 훅으로 분리하면 로직 재사용과 UI 독립이 동시에 가능해진다.
+
+```tsx
+// TO-BE: 로직을 훅으로 분리
+function useForm<T extends Record<string, string>>(initialValues: T) {
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState<Partial<T>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const setFieldError = (field: keyof T, message: string) => {
+    setErrors((prev) => ({ ...prev, [field]: message }));
+  };
+
+  const reset = () => {
+    setValues(initialValues);
+    setErrors({});
+  };
+
+  return { values, errors, handleChange, setFieldError, reset };
+}
+```
+
+```tsx
+// UI 컴포넌트는 훅이 어떻게 동작하는지 모른다
+function SignupForm() {
+  const { values, errors, handleChange, setFieldError } = useForm({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!values.email.includes("@")) return setFieldError("email", "올바른 이메일 형식이 아닙니다.");
+    if (values.password.length < 8) return setFieldError("password", "비밀번호는 8자 이상이어야 합니다.");
+    // 제출 로직...
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="email" value={values.email} onChange={handleChange} />
+      {errors.email && <p>{errors.email}</p>}
+      <input name="password" value={values.password} onChange={handleChange} />
+      {errors.password && <p>{errors.password}</p>}
+      <button type="submit">가입하기</button>
+    </form>
+  );
+}
+```
+
+`useForm`은 어떤 폼에서도 재사용할 수 있고, `SignupForm`은 UI만을 책임진다.
+
+---
+
+## useReducer + Context: 복잡한 상태 구조화
+
+### useState의 한계
+
+아래 `TodoList`는 요구사항이 늘어날수록 문제가 생긴다.
+
+```tsx
+function TodoList({ children }) {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [input, setInput] = useState("");
+
+  const addTodo = () => {
+    if (!input.trim()) return;
+    setTodos((prev) => [...prev, { id: Date.now(), text: input, completed: false }]);
+    setInput("");
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+    );
+  };
+
+  const deleteTodo = (id: number) => {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  return (
+    <TodoContext.Provider value={{ todos, input, setInput, addTodo, toggleTodo, deleteTodo }}>
+      <div>{children}</div>
+    </TodoContext.Provider>
+  );
+}
+```
+
+필터, 우선순위, 일괄 처리가 추가되면 `useState` + 핸들러 함수가 계속 늘어난다. 상태 변경 로직이 컴포넌트 전체에 흩어진다.
+
+### useReducer: action을 통한 상태 전환
+
+`useReducer`는 `(state, action) => newState` 형태의 순수 함수(reducer)로 상태 전환을 명시적으로 표현한다.
+
+```tsx
+type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
+
+type TodoAction =
+  | { type: "ADD"; text: string }
+  | { type: "TOGGLE"; id: number }
+  | { type: "DELETE"; id: number }
+  | { type: "CLEAR_COMPLETED" };
+
+function todoReducer(state: Todo[], action: TodoAction): Todo[] {
+  switch (action.type) {
+    case "ADD":
+      return [...state, { id: Date.now(), text: action.text, completed: false }];
+    case "TOGGLE":
+      return state.map((t) => (t.id === action.id ? { ...t, completed: !t.completed } : t));
+    case "DELETE":
+      return state.filter((t) => t.id !== action.id);
+    case "CLEAR_COMPLETED":
+      return state.filter((t) => !t.completed);
+    default:
+      return state;
+  }
+}
+```
+
+reducer는 컴포넌트 밖에 정의하는 순수 함수다. 개발자는 컴포넌트와 독립적으로 테스트할 수 있고, 모든 상태 전환 로직을 한 곳에서 관리한다.
+
+```tsx
+const [todos, dispatch] = useReducer(todoReducer, []);
+
+// 사용
+dispatch({ type: "ADD", text: "리액트 공부하기" });
+dispatch({ type: "TOGGLE", id: 1 });
+dispatch({ type: "CLEAR_COMPLETED" });
+```
+
+### Context와 결합
+
+`dispatch`를 Context로 내려보내면, 서브 컴포넌트들이 props 없이 상태를 변경할 수 있다.
+
+```tsx
+type TodoContextValue = {
+  todos: Todo[];
+  dispatch: React.Dispatch<TodoAction>;
+};
+
+const TodoContext = createContext<TodoContextValue | null>(null);
+
+function useTodoContext() {
+  const ctx = useContext(TodoContext);
+  if (!ctx) throw new Error("TodoList 안에서만 사용할 수 있습니다.");
+  return ctx;
+}
+
+function TodoList({ children }: { children: React.ReactNode }) {
+  const [todos, dispatch] = useReducer(todoReducer, []);
+
+  return (
+    <TodoContext.Provider value={{ todos, dispatch }}>
+      <div>{children}</div>
+    </TodoContext.Provider>
+  );
+}
+```
+
+```tsx
+// 서브 컴포넌트는 dispatch로 상태를 변경
+TodoList.AddForm = function AddForm() {
+  const { dispatch } = useTodoContext();
+  const [input, setInput] = useState("");
+
+  const handleAdd = () => {
+    if (!input.trim()) return;
+    dispatch({ type: "ADD", text: input });
+    setInput("");
+  };
+
+  return (
+    <div>
+      <input value={input} onChange={(e) => setInput(e.target.value)} />
+      <button onClick={handleAdd}>추가</button>
+    </div>
+  );
+};
+
+TodoList.Items = function Items() {
+  const { todos, dispatch } = useTodoContext();
+
+  return (
+    <ul>
+      {todos.map((todo) => (
+        <li key={todo.id}>
+          <span
+            style={{ textDecoration: todo.completed ? "line-through" : "none" }}
+            onClick={() => dispatch({ type: "TOGGLE", id: todo.id })}
+          >
+            {todo.text}
+          </span>
+          <button onClick={() => dispatch({ type: "DELETE", id: todo.id })}>삭제</button>
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+### useState vs useReducer, 언제 뭘 쓰나?
+
+| | `useState` | `useReducer` |
+|---|---|---|
+| 상태 개수 | 1~2개 | 여러 개가 연관될 때 |
+| 전환 복잡도 | 단순 | 조건 분기가 많을 때 |
+| 테스트 | 컴포넌트 단위 | reducer 단위로 격리 가능 |
+| 가독성 | 직관적 | action 이름으로 의도 명시 |
+
+단순한 토글, 입력 상태라면 `useState`로 충분하다. 상태 전환 경우의 수가 많아지거나, 여러 상태가 함께 변해야 한다면 `useReducer`를 고려한다.
+
+---
+
+## 훅 합성(Composition) 전략
+
+커스텀 훅은 다른 훅을 내부에서 호출할 수 있다. 또한 작은 훅을 조합해 더 큰 훅을 만든다.
+
+### 레이어 설계
+
+```
+useTodoApp          ← 최상위: 모든 것을 조합
+  ├── useTodoReducer    ← 도메인 상태
+  ├── useLocalStorage   ← 인프라: 영속성
+  └── useFilter         ← UI 관심사: 필터링
+```
+
+이때 각 훅은 하나의 관심사만 가진다.
+
+```tsx
+// 1. 인프라 훅: 로컬 스토리지 동기화
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : initialValue;
+    } catch {
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+```
+
+```tsx
+// 2. 도메인 훅: Todo 상태 관리
+function useTodoReducer(initialTodos: Todo[] = []) {
+  const [todos, dispatch] = useReducer(todoReducer, initialTodos);
+
+  const add = (text: string) => dispatch({ type: "ADD", text });
+  const toggle = (id: number) => dispatch({ type: "TOGGLE", id });
+  const remove = (id: number) => dispatch({ type: "DELETE", id });
+  const clearCompleted = () => dispatch({ type: "CLEAR_COMPLETED" });
+
+  return { todos, add, toggle, remove, clearCompleted };
+}
+```
+
+```tsx
+// 3. UI 관심사 훅: 필터링
+type Filter = "all" | "active" | "completed";
+
+function useFilter(todos: Todo[]) {
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const filtered = todos.filter((t) => {
+    if (filter === "active") return !t.completed;
+    if (filter === "completed") return t.completed;
+    return true;
+  });
+
+  return { filter, setFilter, filtered };
+}
+```
+
+```tsx
+// 4. 합성 훅: 모든 관심사를 조합
+function useTodoApp() {
+  const [storedTodos, setStoredTodos] = useLocalStorage<Todo[]>("todos", []);
+  const { todos, add, toggle, remove, clearCompleted } = useTodoReducer(storedTodos);
+  const { filter, setFilter, filtered } = useFilter(todos);
+
+  // todos가 바뀌면 로컬 스토리지에 동기화
+  useEffect(() => {
+    setStoredTodos(todos);
+  }, [todos]);
+
+  return { filtered, filter, setFilter, add, toggle, remove, clearCompleted };
+}
+```
+
+```tsx
+// 컴포넌트는 useTodoApp만 알면 된다
+function TodoApp() {
+  const { filtered, filter, setFilter, add, toggle, remove } = useTodoApp();
+
+  return (
+    <div>
+      <FilterBar filter={filter} onChange={setFilter} />
+      <TodoList todos={filtered} onToggle={toggle} onDelete={remove} />
+      <AddForm onAdd={add} />
+    </div>
+  );
+}
+```
+
+### 합성할 때 주의할 점
+
+**의존 방향을 단방향으로 유지한다.**
+
+```
+useTodoApp → useTodoReducer  (O)
+useTodoApp → useLocalStorage (O)
+useTodoReducer → useLocalStorage (X)  // 인프라 훅이 도메인 훅을 몰라야 한다
+```
+
+`useLocalStorage`는 `Todo`를 모른다. 어떤 타입이든 저장할 수 있는 범용 훅이다. 도메인과 인프라를 섞으면 재사용성이 무너진다.
+
+**합성 깊이는 2~3단계가 적당하다.**
+
+훅이 훅을 부르고, 그 훅이 또 훅을 부르면 디버깅이 어려워진다. 어느 단계에서 상태가 바뀌는지 추적하기 어려워지기 때문이다. 레이어가 깊어진다면 설계를 다시 들여다볼 신호다.
+
+---
+
+## 정리
+
+커스텀 훅을 통해 관심사를 나누고, 조합하고, 계층을 구성할 수 있다.
+
+- **커스텀 훅**: UI에서 로직을 분리. Presentational 컴포넌트가 UI만 책임지게 만든다.
+- **useReducer + Context**: 복잡한 상태 전환을 action으로 명시화하고, 서브 컴포넌트에 dispatch를 전달한다.
+- **훅 합성**: 작은 훅을 조합해 큰 훅을 만든다. 각 훅은 하나의 관심사만 갖는다.
+
+세 가지를 함께 쓰면, 컴포넌트는 오직 JSX를 반환하는 일에만 집중할 수 있다.
