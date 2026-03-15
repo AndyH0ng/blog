@@ -1,4 +1,5 @@
 import { OGImageRoute } from "astro-og-canvas";
+import { fileURLToPath } from "url";
 import { ACCENT_COLOR, BASE_COLOR, SITE_DESCRIPTION, SITE_TITLE } from "../../config.ts";
 import { getBlogPosts } from "src/utils";
 import colors from "tailwindcss/colors";
@@ -86,8 +87,8 @@ export const { getStaticPaths, GET } = OGImageRoute({
     },
     padding: 80,
     fonts: [
-      "./src/assets/fonts/InterVariable.ttf",
-      "./src/assets/fonts/PretendardVariable.ttf",
+      fileURLToPath(new URL("../../assets/fonts/InterVariable.ttf", import.meta.url)),
+      fileURLToPath(new URL("../../assets/fonts/PretendardVariable.ttf", import.meta.url)),
     ],
   }),
 });
